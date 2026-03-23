@@ -8,6 +8,7 @@ const generateToken = (id) => {
 
 const register = async (req, res) => {
   const { username, email, password } = req.body;
+  if(!username || !email || !password) return res.status(400).json({error:'all fields are required'});
   try {
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ message: 'User already exists' });

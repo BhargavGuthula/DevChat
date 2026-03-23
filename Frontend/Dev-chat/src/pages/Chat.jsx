@@ -10,29 +10,7 @@ function Chat() {
   const [isDarkTheme, setIsDarkTheme] = useState(
     () => localStorage.getItem('devchatTheme') === 'dark',
   );
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      text: 'hey everyone',
-      sender: 'Bhargava',
-      timestamp: '10:01',
-      isOwn: true,
-    },
-    {
-      id: 2,
-      text: 'whats up',
-      sender: 'Ravi',
-      timestamp: '10:02',
-      isOwn: false,
-    },
-    {
-      id: 3,
-      text: 'working on the new feature',
-      sender: 'Bhargava',
-      timestamp: '10:03',
-      isOwn: true,
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('devchatUser');
