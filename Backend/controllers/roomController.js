@@ -1,6 +1,6 @@
 import Room from '../models/room.js';
 import Message from '../models/message.js';
-
+import sanitizeHtml from 'sanitize-html';
 const getRooms = async (req, res) => {
   try {
     const rooms = await Room.find()
@@ -15,8 +15,8 @@ const getRooms = async (req, res) => {
 const createRoom = async (req, res) => {
   const { name, description } = req.body;
   try {
-    const trimmedName = name?.trim();
-    const trimmedDescription = description?.trim() || '';
+    const trimmedName = sanitizeHtml(name?.trim());
+    const trimmedDescription = sanitizeHtml(description?.trim()) || '';
 
     if (!trimmedName) {
       return res.status(400).json({ message: 'Room name is required' });
@@ -59,7 +59,7 @@ const sendRoomMessage = async (req, res) => {
       return res.status(404).json({ message: 'Room not found' });
     }
 
-    const trimmedText = text?.trim();
+    const trimmedText = sanitizeHtml(text?.trim());
 
     if (!trimmedText) {
       return res.status(400).json({ message: 'Message text is required' });

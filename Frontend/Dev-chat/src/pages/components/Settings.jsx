@@ -4,33 +4,29 @@ import './CSS/chat.css';
 
 function Settings() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const [user] = useState(() => {
+    const storedUser = localStorage.getItem('devchatUser');
+
+    if (!storedUser) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(storedUser);
+    } catch {
+      localStorage.removeItem('devchatUser');
+      return null;
+    }
+  });
   const [isDarkTheme, setIsDarkTheme] = useState(
     () => localStorage.getItem('devchatTheme') === 'dark',
   );
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('devchatUser');
-
-    if (!storedUser) {
-      navigate('/');
-      return;
-    }
-
-    try {
-      const parsedUser = JSON.parse(storedUser);
-
-      if (!parsedUser) {
-        navigate('/');
-        return;
-      }
-
-      setUser(parsedUser);
-    } catch {
-      localStorage.removeItem('devchatUser');
+    if (!user) {
       navigate('/');
     }
-  }, [navigate]);
+  }, [navigate, user]);
 
   useEffect(() => {
     localStorage.setItem('devchatTheme', isDarkTheme ? 'dark' : 'light');

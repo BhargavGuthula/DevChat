@@ -2,7 +2,15 @@ import { useEffect, useRef } from 'react';
 import MessageBubble from './MessageBubble.jsx';
 import MessageInput from './MessageInput.jsx';
 import './CSS/chat.css';
-function ChatWindow({ selectedRoom, messages, onSend }) {
+
+function ChatWindow({
+  selectedRoom,
+  messages,
+  loadingMessages,
+  error,
+  onSend,
+  sendingMessage,
+}) {
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -12,17 +20,32 @@ function ChatWindow({ selectedRoom, messages, onSend }) {
   return (
     <section className="chat-window">
       <header className="chat-window-header">
-        <h2>#{selectedRoom}</h2>
+        <h2>{selectedRoom ? `#${selectedRoom.name}` : 'Select a room'}</h2>
       </header>
 
       <div className="chat-message-list">
-        {messages.map((message) => (
-          <MessageBubble key={message.id} {...message} />
-        ))}
+        {loadingMessages ? (
+          <p className="chat-window-state">Loading messages...</p>
+        ) : error ? (
+          <p className="chat-window-state">{error}</p>
+        ) : messages.length > 0 ? (
+          messages.map((message) => (
+            <MessageBubble key={message.id} {...message} />
+          ))
+        ) : (
+          <p className="chat-window-state">
+            {selectedRoom
+              ? 'No messages yet. Start the conversation.'
+              : 'Choose a room to view messages.'}
+          </p>
+        )}
         <div ref={bottomRef} />
       </div>
 
-      <MessageInput onSend={onSend} />
+      <MessageInput
+        onSend={onSend}
+        disabled={!selectedRoom || sendingMessage}
+      />
     </section>
   );
 }

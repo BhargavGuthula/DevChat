@@ -1,11 +1,32 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const ROOMS = ['general', 'random', 'dev', 'design'];
-
-function Sidebar({ selectedRoom, onRoomSelect, user }) {
+function Sidebar({
+  rooms,
+  selectedRoomId,
+  onRoomSelect,
+  onCreateRoom,
+  creatingRoom,
+  loadingRooms,
+  user,
+}) {
   const navigate = useNavigate();
+  const [roomName, setRoomName] = useState('');
+  const [roomDescription, setRoomDescription] = useState('');
 
+  const handleCreateRoom = async (event) => {
+    event.preventDefault();
 
+    const created = await onCreateRoom({
+      name: roomName,
+      description: roomDescription,
+    });
+
+    if (created) {
+      setRoomName('');
+      setRoomDescription('');
+    }
+  };
 
   return (
     <aside className="chat-sidebar">
@@ -17,18 +38,46 @@ function Sidebar({ selectedRoom, onRoomSelect, user }) {
         </p>
       </div>
 
-      <nav className="room-list" aria-label="Rooms">
-        {ROOMS.map((room) => (
-          <button
-            key={room}
-            type="button"
-            className={`room-button ${selectedRoom === room ? 'active' : ''}`}
-            onClick={() => onRoomSelect(room)}
-          >
-            #{room}
+      <div className="room-section">
+        <form className="room-create-form" onSubmit={handleCreateRoom}>
+          <input
+            type="text"
+            placeholder="New room name"
+            value={roomName}
+            onChange={(event) => setRoomName(event.target.value)}
+            disabled={creatingRoom}
+          />
+          <input
+            type="text"
+            placeholder="Description (optional)"
+            value={roomDescription}
+            onChange={(event) => setRoomDescription(event.target.value)}
+            disabled={creatingRoom}
+          />
+          <button type="submit" disabled={creatingRoom}>
+            {creatingRoom ? 'Creating...' : 'Create Room'}
           </button>
-        ))}
-      </nav>
+        </form>
+
+        <nav className="room-list" aria-label="Rooms">
+          {loadingRooms ? (
+            <p className="room-list-state">Loading rooms...</p>
+          ) : rooms.length > 0 ? (
+            rooms.map((room) => (
+              <button
+                key={room._id}
+                type="button"
+                className={`room-button ${selectedRoomId === room._id ? 'active' : ''}`}
+                onClick={() => onRoomSelect(room._id)}
+              >
+                #{room.name}
+              </button>
+            ))
+          ) : (
+            <p className="room-list-state">No rooms yet. Create one to begin.</p>
+          )}
+        </nav>
+      </div>
 
       <div className="sidebar-actions">
         <button
@@ -38,7 +87,6 @@ function Sidebar({ selectedRoom, onRoomSelect, user }) {
         >
           Settings
         </button>
-        
       </div>
     </aside>
   );

@@ -7,7 +7,7 @@ import cors from 'cors';
 import {Server} from 'socket.io';
 import http from 'http';
 import Message from './models/message.js';
-
+import sanitizeHtml from 'sanitize-html'; 
 dotenv.config();
 connectDB();
 
@@ -40,7 +40,7 @@ io.on('connection' , (socket)=>{
 
   socket.on('send_message' , async ({roomId ,userId , username , text})=>{
     try{
-      const trimmedText = text?.trim();
+      const trimmedText = sanitizeHtml(text?.trim());
 
       if (!trimmedText) {
         return;

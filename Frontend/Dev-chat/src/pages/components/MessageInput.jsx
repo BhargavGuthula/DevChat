@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-function MessageInput({ onSend }) {
+function MessageInput({ onSend, disabled }) {
   const [text, setText] = useState('');
 
   const submitMessage = () => {
@@ -25,12 +25,13 @@ function MessageInput({ onSend }) {
     <div className="message-input-bar">
       <input
         type="text"
-        placeholder="Type a message"
+        placeholder={disabled ? 'Select a room to start chatting' : 'Type a message'}
         value={text}
         onChange={(event) => setText(event.target.value)}
         onKeyDown={handleKeyDown}
+        disabled={disabled}
       />
-      <button type="button" onClick={submitMessage}>
+      <button type="button" onClick={submitMessage} disabled={disabled}>
         Send
       </button>
     </div>
