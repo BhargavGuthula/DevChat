@@ -27,7 +27,7 @@ function ChatWindow({
           aria-label="Open menu"
           onClick={onOpenSidebar}
         >
-          ☰
+          Menu
         </button>
         <h2>{selectedRoom ? `#${selectedRoom.name}` : 'Select a room'}</h2>
       </header>
@@ -51,10 +51,7 @@ function ChatWindow({
         <div ref={bottomRef} />
       </div>
 
-      <MessageInput
-        onSend={onSend}
-        disabled={!selectedRoom || sendingMessage}
-      />
+      <MessageInput onSend={onSend} disabled={!selectedRoom || sendingMessage} />
     </section>
   );
 }

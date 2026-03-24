@@ -54,6 +54,7 @@ io.on('connection' , (socket)=>{
 
       io.to(roomId).emit('receive_message' , {
         _id:message._id,
+        roomId,
         text:message.text,
         sender:{_id:userId ,username},
         createdAt:message.createdAt,  

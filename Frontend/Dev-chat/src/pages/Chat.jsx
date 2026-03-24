@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { io } from 'socket.io-client';
 import Sidebar from './components/Sidebar.jsx';
 import ChatWindow from './components/ChatWindow.jsx';
 
@@ -20,6 +21,7 @@ const formatMessage = (message, currentUserId) => ({
 });
 
 function Chat() {
+  const socketRef = useRef(null);
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [rooms, setRooms] = useState([]);
@@ -42,6 +44,7 @@ function Chat() {
       navigate('/');
       return;
     }
+
     try {
       const parsedUser = JSON.parse(storedUser);
 
@@ -50,6 +53,7 @@ function Chat() {
         navigate('/');
         return;
       }
+
       setUser(parsedUser);
     } catch {
       localStorage.removeItem('devchatUser');
@@ -60,6 +64,41 @@ function Chat() {
   useEffect(() => {
     setIsDarkTheme(localStorage.getItem('devchatTheme') === 'dark');
   }, []);
+
+  useEffect(() => {
+    if (!user?._id) {
+      return undefined;
+    }
+
+    const socket = io(API_URL, {
+      transports: ['websocket'],
+    });
+
+    socketRef.current = socket;
+
+    socket.on('receive_message', (message) => {
+      if (message.roomId !== selectedRoomId) {
+        return;
+      }
+
+      setMessages((current) => {
+        if (current.some((existingMessage) => existingMessage.id === message._id)) {
+          return current;
+        }
+
+        return [...current, formatMessage(message, user._id)];
+      });
+    });
+
+    socket.on('connect_error', () => {
+      setChatError('Realtime connection failed. Messages may require refresh.');
+    });
+
+    return () => {
+      socket.disconnect();
+      socketRef.current = null;
+    };
+  }, [selectedRoomId, user?._id]);
 
   useEffect(() => {
     if (!user?.token) {
@@ -105,6 +144,18 @@ function Chat() {
 
     loadRooms();
   }, [navigate, user]);
+
+  useEffect(() => {
+    if (!socketRef.current || !selectedRoomId || !user?._id) {
+      return;
+    }
+
+    socketRef.current.emit('join_room', {
+      roomId: selectedRoomId,
+      userId: user._id,
+      username: user.username,
+    });
+  }, [selectedRoomId, user]);
 
   useEffect(() => {
     if (!user?.token || !selectedRoomId) {
@@ -176,7 +227,7 @@ function Chat() {
   };
 
   const handleSend = async (text) => {
-    if (!user?.token || !selectedRoomId) {
+    if (!user?.token || !selectedRoomId || !socketRef.current) {
       return;
     }
 
@@ -184,24 +235,14 @@ function Chat() {
     setChatError('');
 
     try {
-      const response = await axios.post(
-        `${API_URL}/api/rooms/${selectedRoomId}/messages`,
-        { text },
-        {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        },
-      );
-
-      setMessages((current) => [
-        ...current,
-        formatMessage(response.data, user._id),
-      ]);
-    } catch (error) {
-      setChatError(
-        error.response?.data?.message || 'Unable to send the message.',
-      );
+      socketRef.current.emit('send_message', {
+        roomId: selectedRoomId,
+        userId: user._id,
+        username: user.username,
+        text,
+      });
+    } catch {
+      setChatError('Unable to send the message.');
     } finally {
       setSendingMessage(false);
     }
