@@ -12,9 +12,9 @@ dotenv.config();
 connectDB();
 
 const app = express();
-const clientUrl = process.env.CLIENT_URL || 'https://dev-chat-five.vercel.app/';
+const clientUrl = '*';
 
-app.use(cors({ origin: clientUrl }));  
+app.use(cors({origin:'*'}));  
 
 app.use(express.json());
 app.use('/api/auth', authRoutes);
@@ -26,7 +26,7 @@ const server = http.createServer(app);
 
 const io = new Server(server , {
   cors:{
-    origin: clientUrl,
+    origin: '*',
     methods:['GET' , 'POST']
   }
 })
