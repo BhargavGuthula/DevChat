@@ -12,7 +12,7 @@ dotenv.config();
 connectDB();
 
 const app = express();
-const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+const clientUrl = process.env.CLIENT_URL || 'https://dev-chat-five.vercel.app/';
 
 app.use(cors({ origin: clientUrl }));  
 
