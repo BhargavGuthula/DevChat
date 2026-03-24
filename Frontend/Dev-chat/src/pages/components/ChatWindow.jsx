@@ -10,6 +10,7 @@ function ChatWindow({
   error,
   onSend,
   sendingMessage,
+  onOpenSidebar,
 }) {
   const bottomRef = useRef(null);
 
@@ -20,6 +21,14 @@ function ChatWindow({
   return (
     <section className="chat-window">
       <header className="chat-window-header">
+        <button
+          type="button"
+          className="sidebar-toggle"
+          aria-label="Open menu"
+          onClick={onOpenSidebar}
+        >
+          ☰
+        </button>
         <h2>{selectedRoom ? `#${selectedRoom.name}` : 'Select a room'}</h2>
       </header>
 

@@ -9,6 +9,8 @@ function Sidebar({
   creatingRoom,
   loadingRooms,
   user,
+  isSidebarOpen,
+  onCloseSidebar,
 }) {
   const navigate = useNavigate();
   const [roomName, setRoomName] = useState('');
@@ -29,9 +31,19 @@ function Sidebar({
   };
 
   return (
-    <aside className="chat-sidebar">
+    <aside className={`chat-sidebar ${isSidebarOpen ? 'mobile-open' : ''}`}>
       <div>
-        <p className="chat-sidebar-label">Rooms</p>
+        <div className="chat-sidebar-top">
+          <p className="chat-sidebar-label">Rooms</p>
+          <button
+            type="button"
+            className="sidebar-close"
+            aria-label="Close menu"
+            onClick={onCloseSidebar}
+          >
+            x
+          </button>
+        </div>
         <h1>DevChat</h1>
         <p className="chat-sidebar-subtitle">
           {user?.username ? `Signed in as ${user.username}` : 'Workspace'}

@@ -33,6 +33,7 @@ function Chat() {
   const [chatError, setChatError] = useState('');
   const [creatingRoom, setCreatingRoom] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('devchatUser');
@@ -162,6 +163,7 @@ function Chat() {
 
       setRooms((current) => [...current, response.data]);
       setSelectedRoomId(response.data._id);
+      setIsSidebarOpen(false);
       return true;
     } catch (error) {
       setChatError(
@@ -213,15 +215,28 @@ function Chat() {
     rooms.find((room) => room._id === selectedRoomId) || null;
 
   return (
-    <main className={`chat-page ${isDarkTheme ? 'dark-theme' : ''}`}>
+    <main
+      className={`chat-page ${isDarkTheme ? 'dark-theme' : ''} ${isSidebarOpen ? 'sidebar-open' : ''}`}
+    >
+      <button
+        type="button"
+        className={`chat-overlay ${isSidebarOpen ? 'visible' : ''}`}
+        aria-label="Close sidebar"
+        onClick={() => setIsSidebarOpen(false)}
+      />
       <Sidebar
         rooms={rooms}
         selectedRoomId={selectedRoomId}
-        onRoomSelect={setSelectedRoomId}
+        onRoomSelect={(roomId) => {
+          setSelectedRoomId(roomId);
+          setIsSidebarOpen(false);
+        }}
         onCreateRoom={handleCreateRoom}
         creatingRoom={creatingRoom}
         loadingRooms={loadingRooms}
         user={user}
+        isSidebarOpen={isSidebarOpen}
+        onCloseSidebar={() => setIsSidebarOpen(false)}
       />
       <ChatWindow
         selectedRoom={selectedRoom}
@@ -230,6 +245,7 @@ function Chat() {
         error={chatError}
         onSend={handleSend}
         sendingMessage={sendingMessage}
+        onOpenSidebar={() => setIsSidebarOpen(true)}
       />
     </main>
   );
